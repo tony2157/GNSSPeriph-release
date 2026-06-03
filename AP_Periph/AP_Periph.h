@@ -297,6 +297,9 @@ public:
     void send_relposheading_msg();
     Canard::Publisher<ardupilot_gnss_RelPosHeading> relposheading_pub{canard_iface};
 
+    void send_hpposecef_msg();
+    Canard::Publisher<ardupilot_gnss_HpposEcef> hpposecef_pub{canard_iface};
+
     void can_baro_update();
     Canard::Publisher<uavcan_equipment_air_data_StaticPressure> static_pressure_pub{canard_iface};
     Canard::Publisher<uavcan_equipment_air_data_StaticTemperature> static_temperature_pub{canard_iface};

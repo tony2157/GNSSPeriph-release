@@ -44,6 +44,7 @@ void AP_Periph_DroneCAN::can_gps_update(void)
 
     send_moving_baseline_msg();
     send_relposheading_msg();
+    send_hpposecef_msg();
     if (periph.last_gps_update_ms == gps.last_message_time_ms()) {
         return;
     }
@@ -263,6 +264,34 @@ void AP_Periph_DroneCAN::send_relposheading_msg() {
 
     relposheading_pub.broadcast(relpos);
 #endif // HAL_PERIPH_ENABLE_GPS && GPS_MOVING_BASELINE
+}
+
+// publish raw u-blox UBX-NAV-HPPOSECEF so the vehicle can log high-precision ECEF.
+// This is logging-only data; it is not used by the vehicle navigation/EKF.
+void AP_Periph_DroneCAN::send_hpposecef_msg()
+{
+#if defined(HAL_PERIPH_ENABLE_GPS) && AP_GPS_UBLOX_HPPOSECEF_ENABLED
+    auto &gps = periph.gps;
+    AP_GPS::GPS_HPPOSECEF data;
+    if (!gps.get_hpposecef(data)) {
+        // nothing new to send (also false on non-F9 / non-ublox receivers)
+        return;
+    }
+    ardupilot_gnss_HpposEcef pkt {};
+    pkt.timestamp.usec = AP_HAL::micros64();
+    pkt.gps_week = data.gps_week;
+    pkt.itow = data.itow;
+    pkt.ecef_x = data.ecef_x;
+    pkt.ecef_y = data.ecef_y;
+    pkt.ecef_z = data.ecef_z;
+    pkt.ecef_x_hp = data.ecef_x_hp;
+    pkt.ecef_y_hp = data.ecef_y_hp;
+    pkt.ecef_z_hp = data.ecef_z_hp;
+    pkt.flags = data.flags;
+    pkt.p_acc = data.p_acc;
+
+    hpposecef_pub.broadcast(pkt);
+#endif // HAL_PERIPH_ENABLE_GPS && AP_GPS_UBLOX_HPPOSECEF_ENABLED
 }
 
 

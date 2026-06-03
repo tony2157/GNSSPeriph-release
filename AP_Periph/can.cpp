@@ -680,6 +680,9 @@ AP_Periph_DroneCAN::AP_Periph_DroneCAN()
     relposheading_pub.set_priority(CANARD_TRANSFER_PRIORITY_MEDIUM);
     relposheading_pub.set_timeout_ms(50);
 
+    hpposecef_pub.set_priority(CANARD_TRANSFER_PRIORITY_LOW);
+    hpposecef_pub.set_timeout_ms(50);
+
     static_pressure_pub.set_priority(CANARD_TRANSFER_PRIORITY_MEDIUM);
     static_pressure_pub.set_timeout_ms(20);
 
