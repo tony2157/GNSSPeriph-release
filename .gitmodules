@@ -1,3 +1,4 @@
 [submodule "ardupilot"]
 	path = ardupilot
-	url = git@github.com:CubePilot/ardupilot.git
+	url = git@github.com:tony2157/my-ardupilot.git
+	branch = here4-hpposecef

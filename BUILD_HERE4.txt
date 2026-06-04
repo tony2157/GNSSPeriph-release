@@ -1,0 +1,49 @@
+==========================================================
+ Building the Here4 (Blue) AP_Periph firmware
+==========================================================
+
+ONE-TIME SETUP
+--------------
+Get the submodules (only needed on a fresh clone):
+       git submodule update --init --recursive
+
+That's it. The ardupilot submodule points at tony2157/my-ardupilot
+(branch here4-hpposecef) and already includes both the HPPOSECEF
+changes and the CubeID firmware blob (ardupilot/ROMFS_custom/
+CubeID_fw.bin), so no manual file placement is needed.
+
+
+BUILD
+-----
+Run from this root folder:
+
+    ./waf configure --board Here4
+    ./waf AP_Periph
+
+Takes ~30 s (a few seconds on rebuilds).
+
+
+WHERE THE FIRMWARE ENDS UP
+--------------------------
+    build/Here4/bin/AP_Periph.apj            <- flash this in Mission Planner (DroneCAN)
+    build/Here4/bin/AP_Periph_with_bl.hex    <- full image incl. bootloader (SWD/DFU)
+    build/Here4/bin/AP_Periph.bin
+    build/Here4/bin/AP_Periph.elf            <- for debugging
+
+
+AFTER FLASHING (CubeID check)
+-----------------------------
+Watch the DroneCAN console for:
+    CubeID firmware size 198414 crc 0x659fc531
+That confirms the embedded CubeID blob was found and sent to the
+CubeID node. (Param CUBEID_FW_UPDATE = 1 enables this; default on.)
+
+
+NOTES
+-----
+- This build also includes the DroneCAN HpposEcef telemetry feature
+  (ardupilot.gnss.HpposEcef, id 20008).
+- All custom code (HPPOSECEF + CubeID blob) lives in the ardupilot
+  submodule: tony2157/my-ardupilot, branch here4-hpposecef.
+- The CubeID_fw.bin is committed (force-added; ROMFS_custom is normally
+  gitignored) so the build is self-contained on a fresh clone.
