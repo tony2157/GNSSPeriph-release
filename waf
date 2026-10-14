@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 import subprocess
+import os
 import os.path as p
 import sys
 
@@ -10,8 +11,15 @@ waf_light = p.join(d, 'ardupilot', 'modules', 'waf', 'waf-light')
 
 python = sys.executable
 
+env = None
+if sys.version_info >= (3, 12):
+    # the vendored waf imports modules removed in Python 3.12/3.13
+    env = dict(os.environ)
+    compat = p.join(d, 'scripts', 'py3_compat')
+    env['PYTHONPATH'] = os.pathsep.join(filter(None, [compat, env.get('PYTHONPATH')]))
+
 try:
-    subprocess.check_call([python, waf_light] + sys.argv[1:])
+    subprocess.check_call([python, waf_light] + sys.argv[1:], env=env)
 except subprocess.CalledProcessError as e:
     if e.returncode != 2 or p.isfile(waf_light):
         sys.exit(1)
