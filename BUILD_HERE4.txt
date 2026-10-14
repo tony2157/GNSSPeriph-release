@@ -20,7 +20,12 @@ Run from this root folder:
     ./waf configure --board Here4
     ./waf AP_Periph
 
-Takes ~30 s (a few seconds on rebuilds).
+Takes ~30 s (a few seconds on rebuilds). With Python 3.12 or newer
+the ./waf wrapper adds scripts/py3_compat to PYTHONPATH, because the
+vendored waf still imports the removed imp and pipes modules.
+
+To build a different board in the same build/ folder, run
+./waf clean after configure, or the MAVLink headers are not generated.
 
 
 WHERE THE FIRMWARE ENDS UP
@@ -34,7 +39,9 @@ WHERE THE FIRMWARE ENDS UP
 AFTER FLASHING (CubeID check)
 -----------------------------
 Watch the DroneCAN console for:
-    CubeID firmware size 198414 crc 0x659fc531
+    CubeID fw v1.12.0 size 164902 crc 0x257cd554
+and, once the module has updated or was already current:
+    CubeID running fw v1.12.0
 That confirms the embedded CubeID blob was found and sent to the
 CubeID node. (Param CUBEID_FW_UPDATE = 1 enables this; default on.)
 
@@ -43,7 +50,12 @@ NOTES
 -----
 - This build also includes the DroneCAN HpposEcef telemetry feature
   (ardupilot.gnss.HpposEcef, id 20008).
-- All custom code (HPPOSECEF + CubeID blob) lives in the ardupilot
-  submodule: tony2157/my-ardupilot, branch here4-hpposecef.
+- The HPPOSECEF parsing, DSDL and CubeID blob live in the ardupilot
+  submodule (tony2157/my-ardupilot, branch here4-hpposecef); the
+  DroneCAN publisher is in AP_Periph/sensor_gps.cpp here.
+- The vehicle only logs HpposEcef (ECEF log message) if its firmware
+  has the matching AP_GPS_DroneCAN subscriber and the same DSDL file.
 - The CubeID_fw.bin is committed (force-added; ROMFS_custom is normally
-  gitignored) so the build is self-contained on a fresh clone.
+  gitignored) so the build is self-contained on a fresh clone. It is
+  CubeID v1.12.0 for Here4 (FEM build), taken from the official
+  GNSSPeriph v1.15.9 Here4 firmware. Do not use it for Here3+.
